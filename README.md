@@ -22,6 +22,26 @@ adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll
 AVD 突然出现了`dev kvm is not found 这个错误`
 `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
 
+#### ubuntu下无法连接真机，安装adb后lsusb可以显示出vid
+```
+Bus 001 Device 009: ID 1ebf:5d24
+但是adb devices，提示： ????????????	 no permissions
+```
+首先~/.android/新建adb_usb.ini，将01ebf加入，再打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
+```
+#common sprd adb setting
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1782", ATTRS{idProduct}=="5d24", MODE="0666"
+#just for Coolpad
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ebf", ATTRS{idProduct}=="5d24", MODE="0666"
+```
+```
+adb shell  error: device not found
+adb nodaemon server
+netstat -ano | findstr "5037"
+tasklist | findstr "7860"
+taskkill /f /pid 7860
+```
+
 ##### 打开一个Activity
 ```
 adb shell am start -n 包名/类名
@@ -80,6 +100,26 @@ adb shell dumpsys diskstats
 adb shell dumpsys package packagename  
 ```
 
+#### 读取系统属性
+```
+adb shell getprop ro.product.name
+```
+
+#### 设置系统属性
+```
+adb shell setprop ro.product.name  coolpad
+```
+
+#### 动态查看系统属性
+```
+adb shell watchprops
+```
+
+#### 查看内核log
+```
+dmesg  | cat /proc/kmsg
+```
+
 ##### 每个界面启动时间
 ```
 adb shell dumpsys usagestats  
@@ -126,15 +166,55 @@ adb shell input tap 100 200
 adb shell input swipe 100 200 200 400
 ```
 
+##### 查看TP ID
+```
+adb shell cat /proc/bus/input/devices
+```
+
+##### 查看TP name
+```
+adb shell cat /sys/class/xr-tp/device/tp_version
+```
+
+##### 查看TP 固件
+```
+adb shell cat /sys/touchscreen/firmware_version
+```
+
 ##### 查看屏的IC
 ```
-adb shell 	cat /proc/cmdline
+adb shell cat /proc/cmdline
+```
+
+##### 查看屏的name
+```
+adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
+```
+
+#### 查看G-sensor名称
+```
+adb shell cat /sys/module/sprd_phinfo/parameters/SPRD_GsensorInfo
+```
+
+##### 查看L-sensor名称
+```
+adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
+```
+
+#### 查看支持的Camera的名称
+```
+adb shell cat /sys/devices/virtual/misc/sprd_sensor/camera_sensor_name
 ```
 
 ##### 查看Flash ID
 ```
 adb shell  	cd ./sys/bus/mmc/devices/mmc0:0001
 cat manfid	# FLASH ID
+```
+
+##### 查看Flash大小
+```
+/sys/block/mmcblk0/size
 ```
 
 ##### 查看当前电量电压
