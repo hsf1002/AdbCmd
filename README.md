@@ -1,9 +1,8 @@
 # adb
-adb common usage command
-
 ##### 环境配置
 adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll  
-三个文件copy到：`C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)`  
+三个文件copy到：`C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)`  
+
 新建环境变量：adb    `C:\Users\feng_he\AppData\Local\Android\sdk\platform-tools`  
 添加到path：`%adb%`  
 
@@ -22,10 +21,27 @@ adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll
 AVD 突然出现了`dev kvm is not found 这个错误`
 `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
 
-#### ubuntu下无法连接真机，安装adb后lsusb可以显示出vid
+##### 使用WIFI连接ADB
+
+当USB端口与adb无法同时存在时使用
+
+```
+1. adb tcpip 5555
+2. adb connect 192.168.3.47:5555
+3. adb devices
+List of devices attached
+76837775147826	device
+192.168.3.47:5555	device
+4. adb -s 76837775147826 shell
+5. adb disconnect 192.168.3.47:5555
+```
+
+#### ubuntu下无法连接真机
+
+lsusb可以显示出vid, 但是adb devices，提示： ????????????	 no permissions
+
 ```
 Bus 001 Device 009: ID 1ebf:5d24
-但是adb devices，提示： ????????????	 no permissions
 ```
 首先~/.android/新建adb_usb.ini，将01ebf加入，再打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
 ```
@@ -62,7 +78,7 @@ adb logcat -v time > log
 adb logcat -c
 ```
 
-##### 查看当前Activity，当然打开某个APK后也可以查看其包名类名
+##### 查看当前Activity或打开APK后查看包名类名
 ```
 adb shell dumpsys activity top | head -n 10  
 dumpsys activity intents  
@@ -79,12 +95,18 @@ dumpsys window  | head -n 50
 adb shell pm list packages
 ```
 
-##### 列出一些系统信息和所有应用的信息。这个命令的输出很庞大，包括Features，Activity Resolver Table等
+##### 列出一些系统信息和所有应用的信息
+
+这个命令的输出很庞大，包括Features，Activity Resolver Table等
+
 ```
 adb shell dumpsys packages
 ```
 
-##### 查看某个应用当前内存使用情况，该应用必须处于活动状态
+##### 查看应用当前内存使用情况
+
+该应用必须处于活动状态
+
 ```
 adb shell dumpsys meminfo packagename or PID  
 adb shell dumpsys meminfo  
@@ -100,22 +122,26 @@ adb shell dumpsys diskstats
 adb shell dumpsys package packagename  
 ```
 
-#### 读取系统属性
+##### 读取系统属性
+
 ```
 adb shell getprop ro.product.name
 ```
 
-#### 设置系统属性
+##### 设置系统属性
+
 ```
 adb shell setprop ro.product.name  coolpad
 ```
 
-#### 动态查看系统属性
+##### 动态查看系统属性
+
 ```
 adb shell watchprops
 ```
 
-#### 查看内核log
+##### 查看内核log
+
 ```
 dmesg  | cat /proc/kmsg
 ```
@@ -145,74 +171,104 @@ adb shell pm list features
 adb shell pm list permissions
 ```
 
-##### 屏幕截图再从data中pull出来
+##### 屏幕截图
 ```
-adb shell
-screencap -p | sed s/\r$// > data/screen.png
+screencap -p data/screen.png
 ```
 
-##### 按键事件
+##### 操作按键
+
+单击：
+
 ```
 adb shell input keyevent 26      (26-PowerKey， 82-解锁屏幕)  
 ```
 
-#####  TP单击
+字符串：
+
+```
+adb shell input text hsf1002
+```
+
+#####  操作TP
+
+单击：
+
 ```
 adb shell input tap 100 200
 ```
 
-##### TP滑动
+滑动：
+
 ```
 adb shell input swipe 100 200 200 400
 ```
 
-##### 查看TP ID
+##### 查看TP 
+
+ID：
+
 ```
 adb shell cat /proc/bus/input/devices
 ```
 
-##### 查看TP name
+name：
+
 ```
 adb shell cat /sys/class/xr-tp/device/tp_version
 ```
 
-##### 查看TP 固件
+固件：
+
 ```
 adb shell cat /sys/touchscreen/firmware_version
 ```
 
-##### 查看屏的IC
+##### 查看屏
+
+IC：
+
 ```
 adb shell cat /proc/cmdline
 ```
 
-##### 查看屏的name
+name：
+
 ```
 adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
 ```
 
-#### 查看G-sensor名称
+##### 查看sensor
+
+G-sensor：
+
 ```
 adb shell cat /sys/module/sprd_phinfo/parameters/SPRD_GsensorInfo
 ```
 
-##### 查看L-sensor名称
+L-sensor：
+
 ```
 adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
 ```
 
-#### 查看支持的Camera的名称
+##### 查看Camera
+
 ```
 adb shell cat /sys/devices/virtual/misc/sprd_sensor/camera_sensor_name
 ```
 
-##### 查看Flash ID
+##### 查看Flash 
+
+ID：
+
 ```
 adb shell  	cd ./sys/bus/mmc/devices/mmc0:0001
 cat manfid	# FLASH ID
 ```
 
-##### 查看Flash大小
+大小：
+
 ```
 /sys/block/mmcblk0/size
 ```
@@ -223,14 +279,42 @@ cd /sys/class/power_supply/sprdfgu/   cat fgu_current
 cd /sys/class/power_supply/battery     cat charger_voltage
 ```
 
-##### 签名命令
+##### 系统签名
+
+1. 使用系统命令
+
 ```
 java -jar signapk.jar platform.x509.pem platform.pk8 MyDemo.apk MyDemo_signed.apk
 ```
-给APK签名，签名文件目录：`build\target\product\security`  
+给APK签名，签名文件目录：`build\target\product\security`
+
+```
+java -Xmx2048m -Djava.library.path="out/host/linux-x86/lib64" -jar out/host/linux-x86/framework/signapk.jar build/target/product/security/platform.x509.pem build/target/product/security/platform.pk8 MyDemo.apk MyDemo_signed.apk
+```
+
+2. 修改Android.mk文件
+
+```
+LOCAL_CERTIFICATE := platform
+```
 
 ##### 签名失败原因
+
 `INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE`  
 adb 安装apk提示，apk的AndroidManifest.xml中声明了android:sharedUserId="android.uid.system"，但没有相应的签名，应与sharedUserId的应用使用一样的签名  
 `INSTALL_FAILED_USER_RESTRICTED`  
 用户被限制安装应用
+
+##### 安装失败原因
+
+```
+INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE
+```
+
+如上提示表明AndroidManifest.xml中声明了android:sharedUserId="android.uid.system"，但没有相应的签名，应与sharedUserId的应用使用一样的签名
+
+```
+INSTALL_FAILED_USER_RESTRICTED
+```
+
+如上提示表明用户被限制安装应用
