@@ -1,25 +1,26 @@
 # adb
 ##### 环境配置
-adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll  
-三个文件copy到：`C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)`  
+1. adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll拷贝到：C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)
 
-新建环境变量：adb    `C:\Users\feng_he\AppData\Local\Android\sdk\platform-tools`  
-添加到path：`%adb%`  
+2. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
+
+3. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
 
 ##### adb连接不上
-`C:\Users\feng_he\.android`下新建adb_usb.ini，并将设备管理器中 Android Device、端口、人体学输入设备的VID添加，重新插拔USB线，输入adb kill-server再输入adb shell  
 
-如果还是连不上，提示：`could not read ok from ADB Server, error = 109`  
-把环境变量 adb 添加到系统变量里面  
+1. `C:\Users\feng_he\.android`下新建adb_usb.ini，并将设备管理器中 Android Device、端口、人体学输入设备的VID添加，重新插拔USB线，输入adb kill-server再输入adb shell  
 
-如果提示`adb server version (31) doesn’t match this client (36); killing…`  
-可能`Windows\System32\adb.exe和Users\feng_he\AppData\Local\Android\sdk\platform-tools\adb.exe`太新了，这两处替换为旧的文件
+2. 如果提示`could not read ok from ADB Server, error = 109`  
+   把环境变量 adb 添加到系统变量里面  
 
-`Error:CreateProcess error=216, 该版本的 %1 与您运行的 Windows 版本不兼容`
-开发项目的引用Java jdk，与本机安装的java jdk版本不一致，打开项目后，在project structure里面更改一下本机的真实的Java jdk路径  
+3. 如果提示`adb server version (31) doesn’t match this client (36); killing…`  
+   可能`Windows\System32\adb.exe和Users\feng_he\AppData\Local\Android\sdk\platform-tools\adb.exe`太新了，这两处替换为旧的文件
 
-AVD 突然出现了`dev kvm is not found 这个错误`
-`C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
+4. 如果提示`Error:CreateProcess error=216, 该版本的 %1 与您运行的 Windows 版本不兼容`
+   开发项目的引用Java jdk，与本机安装的java jdk版本不一致，打开项目后，在project structure里面更改一下本机的真实的Java jdk路径  
+
+5. AVD 突然出现了`dev kvm is not found 这个错误`
+   `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
 
 ##### 使用WIFI连接ADB
 
