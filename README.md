@@ -1,12 +1,17 @@
 # adb
-##### 环境配置
+```
+https://adb.clockworkmod.com/
+```
+
+##### 安装
+
 1. adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll拷贝到：C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)
 
 2. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
 
 3. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
 
-##### adb连接不上
+安装可能出现的问题：
 
 1. `C:\Users\feng_he\.android`下新建adb_usb.ini，并将设备管理器中 Android Device、端口、人体学输入设备的VID添加，重新插拔USB线，输入adb kill-server再输入adb shell  
 
@@ -22,7 +27,30 @@
 5. AVD 突然出现了`dev kvm is not found 这个错误`
    `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
 
-##### 使用WIFI连接ADB
+ubuntu下无法连接真机，lsusb可以显示出vid, 但是adb devices，提示： ????????????	 no permissions
+
+```
+Bus 001 Device 009: ID 1ebf:5d24
+```
+
+~/.android/新建adb_usb.ini，将01ebf加入，打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
+
+```
+#common sprd adb setting
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1782", ATTRS{idProduct}=="5d24", MODE="0666"
+#just for Coolpad
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ebf", ATTRS{idProduct}=="5d24", MODE="0666"
+```
+
+```
+adb shell  error: device not found
+adb nodaemon server
+netstat -ano | findstr "5037"
+tasklist | findstr "7860"
+taskkill /f /pid 7860
+```
+
+##### 使用wireless方式连接ADB
 
 当USB端口与adb无法同时存在时使用
 
@@ -37,28 +65,6 @@ List of devices attached
 5. adb disconnect 192.168.3.47:5555
 ```
 
-#### ubuntu下无法连接真机
-
-lsusb可以显示出vid, 但是adb devices，提示： ????????????	 no permissions
-
-```
-Bus 001 Device 009: ID 1ebf:5d24
-```
-首先~/.android/新建adb_usb.ini，将01ebf加入，再打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
-```
-#common sprd adb setting
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1782", ATTRS{idProduct}=="5d24", MODE="0666"
-#just for Coolpad
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1ebf", ATTRS{idProduct}=="5d24", MODE="0666"
-```
-```
-adb shell  error: device not found
-adb nodaemon server
-netstat -ano | findstr "5037"
-tasklist | findstr "7860"
-taskkill /f /pid 7860
-```
-
 ##### 打开一个Activity
 ```
 adb shell am start -n 包名/类名
@@ -69,7 +75,7 @@ adb shell am start -n 包名/类名
 adb shell am force-stop package
 ```
 
-##### 写日志
+##### 保存日志
 ```
 adb logcat -v time > log
 ```
@@ -79,97 +85,66 @@ adb logcat -v time > log
 adb logcat -c
 ```
 
-##### 查看当前Activity或打开APK后查看包名类名
-```
-adb shell dumpsys activity top | head -n 10  
-dumpsys activity intents  
-dumpsys activity broadcasts  
-dumpsys activity providers  
-dumpsys activity services  
-dumpsys activity activities  
-dumpsys activity processes  
-dumpsys window  | head -n 50  
-```
-
-##### 仅列出包名
-```
-adb shell pm list packages
-```
-
-##### 列出一些系统信息和所有应用的信息
-
-这个命令的输出很庞大，包括Features，Activity Resolver Table等
-
-```
-adb shell dumpsys packages
-```
-
-##### 查看应用当前内存使用情况
-
-该应用必须处于活动状态
-
-```
-adb shell dumpsys meminfo packagename or PID  
-adb shell dumpsys meminfo  
-adb shell dumpsys cpuinfo  
-adb shell dumpsys wifi  
-adb shell dumpsys battery  
-adb shell dumpsys statusbar  
-adb shell dumpsys diskstats   
-```
-
-##### 获取安装包信息
-```
-adb shell dumpsys package packagename  
-```
-
-##### 读取系统属性
-
-```
-adb shell getprop ro.product.name
-```
-
-##### 设置系统属性
-
-```
-adb shell setprop ro.product.name  coolpad
-```
-
-##### 动态查看系统属性
-
-```
-adb shell watchprops
-```
-
 ##### 查看内核log
 
 ```
 dmesg  | cat /proc/kmsg
 ```
 
-##### 每个界面启动时间
+##### 查看当前Activity所属包名类名
+
 ```
-adb shell dumpsys usagestats  
+adb shell dumpsys activity top | head -n 10  
+adb shell dumpsys window | grep mCurrentFocus
 ```
 
-##### 查看手机分辨率
+##### dumpsys
+
 ```
-adb shell dumpsys window | grep "ShownFrame"
+adb shell dumpsys package	 // 输出很庞大，包括Permissions，Features，Activity Resolver Table等
+adb shell dumpsys package packagename   // 获取某个应用信息
+adb shell dumpsys window | grep "ShownFrame" // 查看手机分辨率
+adb shell dumpsys usagestats  // 每个界面启动时间
 ```
 
-##### 列出目标设备上安装的所有app的包名
 ```
-adb shell pm list packages
+adb shell dumpsys activity intents  
+adb shell dumpsys activity broadcasts  
+adb shell dumpsys activity providers  
+adb shell dumpsys activity services  
+adb shell dumpsys activity activities  
+adb shell dumpsys activity processes  
+
+该应用必须处于活动状态
+adb shell dumpsys meminfo packagename or PID  
+adb shell dumpsys meminfo  
+adb shell dumpsys cpuinfo  
+adb shell dumpsys wifi  
+adb shell dumpsys battery  
+adb shell dumpsys batterystats
+adb shell dumpsys statusbar  
+adb shell dumpsys diskstats   
+adb shell dumpsys power
+adb shell dumpsys display
+adb shell dumpsys gfxinfo
+adb shell dumpsys alarm
+adb shell dumpsys location
 ```
 
-##### 列出目标设备上的所有feature
+##### pm list 
+
 ```
-adb shell pm list features
+adb shell pm list packages    // 列出系统所有包名
+adb shell pm list features    // 列出目标设备上的所有feature
+adb shell pm list permissions // 列出目标平台上的所有权限
 ```
 
-##### 列出目标平台上的所有权限
+##### 读写系统属性
+
 ```
-adb shell pm list permissions
+adb shell getprop ro.product.name
+adb shell setprop ro.product.name  coolpad
+adb shell watchprops  // 动态查看系统属性
 ```
 
 ##### 屏幕截图
@@ -205,15 +180,27 @@ adb shell input tap 100 200
 adb shell input swipe 100 200 200 400
 ```
 
-##### 查看TP 
+##### 查看硬件信息
 
-ID：
+LCD IC：
+
+```
+adb shell cat /proc/cmdline
+```
+
+LCD name：
+
+```
+adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
+```
+
+TP ID：
 
 ```
 adb shell cat /proc/bus/input/devices
 ```
 
-name：
+TP name：
 
 ```
 adb shell cat /sys/class/xr-tp/device/tp_version
@@ -225,59 +212,22 @@ adb shell cat /sys/class/xr-tp/device/tp_version
 adb shell cat /sys/touchscreen/firmware_version
 ```
 
-##### 查看屏
-
-IC：
+Flash：
 
 ```
-adb shell cat /proc/cmdline
-```
-
-name：
-
-```
-adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
-```
-
-##### 查看sensor
-
-G-sensor：
-
-```
-adb shell cat /sys/module/sprd_phinfo/parameters/SPRD_GsensorInfo
-```
-
-L-sensor：
-
-```
-adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
-```
-
-##### 查看Camera
-
-```
-adb shell cat /sys/devices/virtual/misc/sprd_sensor/camera_sensor_name
-```
-
-##### 查看Flash 
-
 ID：
-
-```
 adb shell  	cd ./sys/bus/mmc/devices/mmc0:0001
 cat manfid	# FLASH ID
-```
 
-大小：
-
-```
+Size：
 /sys/block/mmcblk0/size
 ```
 
-##### 查看当前电量电压
+查看当前电量电压
+
 ```
 cd /sys/class/power_supply/sprdfgu/   cat fgu_current
-cd /sys/class/power_supply/battery     cat charger_voltage
+cd /sys/class/power_supply/battery    cat charger_voltage
 ```
 
 ##### 系统签名
@@ -299,12 +249,12 @@ java -Xmx2048m -Djava.library.path="out/host/linux-x86/lib64" -jar out/host/linu
 LOCAL_CERTIFICATE := platform
 ```
 
-##### 签名失败原因
+签名失败原因：
 
 `INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE`  
 adb 安装apk提示，apk的AndroidManifest.xml中声明了android:sharedUserId="android.uid.system"，但没有相应的签名，应与sharedUserId的应用使用一样的签名  
 `INSTALL_FAILED_USER_RESTRICTED`  
-用户被限制安装应用
+表明用户被限制安装应用
 
 ##### 安装失败原因
 
@@ -318,4 +268,4 @@ INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE
 INSTALL_FAILED_USER_RESTRICTED
 ```
 
-如上提示表明用户被限制安装应用
+表明用户被限制安装应用
