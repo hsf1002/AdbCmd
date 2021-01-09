@@ -139,95 +139,45 @@ adb shell pm list features    // 列出目标设备上的所有feature
 adb shell pm list permissions // 列出目标平台上的所有权限
 ```
 
-##### 读写系统属性
+##### input
 
-```
-adb shell getprop ro.product.name
-adb shell setprop ro.product.name  coolpad
-adb shell watchprops  // 动态查看系统属性
-```
-
-##### 屏幕截图
-```
-screencap -p data/screen.png
-```
-
-##### 操作按键
-
-单击：
+按键-单击：
 
 ```
 adb shell input keyevent 26      (26-PowerKey， 82-解锁屏幕)  
 ```
 
-字符串：
+按键-字符串：
 
 ```
 adb shell input text hsf1002
 ```
 
-#####  操作TP
-
-单击：
+TP-单击：
 
 ```
 adb shell input tap 100 200
 ```
 
-滑动：
+TP-滑动：
 
 ```
 adb shell input swipe 100 200 200 400
 ```
 
-##### 查看硬件信息
-
-LCD IC：
+##### 系统属性
 
 ```
-adb shell cat /proc/cmdline
+adb shell getprop ro.product.name
+adb shell setprop ro.product.name  coolpad
+
+adb shell watchprops   // 监控系统属性
 ```
 
-LCD name：
+##### 屏幕截图
 
 ```
-adb shell cat /sys/devices/platform/soc/soc:ap-ahb/20800000.dispc/lcd_name
-```
-
-TP ID：
-
-```
-adb shell cat /proc/bus/input/devices
-```
-
-TP name：
-
-```
-adb shell cat /sys/class/xr-tp/device/tp_version
-```
-
-固件：
-
-```
-adb shell cat /sys/touchscreen/firmware_version
-```
-
-Flash：
-
-```
-ID：
-adb shell  	cd ./sys/bus/mmc/devices/mmc0:0001
-cat manfid	# FLASH ID
-
-Size：
-/sys/block/mmcblk0/size
-```
-
-查看当前电量电压
-
-```
-cd /sys/class/power_supply/sprdfgu/   cat fgu_current
-cd /sys/class/power_supply/battery    cat charger_voltage
+screencap -p data/screen.png
 ```
 
 ##### 系统签名
@@ -236,36 +186,54 @@ cd /sys/class/power_supply/battery    cat charger_voltage
 
 ```
 java -jar signapk.jar platform.x509.pem platform.pk8 MyDemo.apk MyDemo_signed.apk
-```
-给APK签名，签名文件目录：`build\target\product\security`
 
-```
 java -Xmx2048m -Djava.library.path="out/host/linux-x86/lib64" -jar out/host/linux-x86/framework/signapk.jar build/target/product/security/platform.x509.pem build/target/product/security/platform.pk8 MyDemo.apk MyDemo_signed.apk
 ```
-
 2. 修改Android.mk文件
 
 ```
 LOCAL_CERTIFICATE := platform
 ```
 
-签名失败原因：
-
-`INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE`  
-adb 安装apk提示，apk的AndroidManifest.xml中声明了android:sharedUserId="android.uid.system"，但没有相应的签名，应与sharedUserId的应用使用一样的签名  
-`INSTALL_FAILED_USER_RESTRICTED`  
-表明用户被限制安装应用
-
-##### 安装失败原因
-
 ```
-INSTALL_FAILED_UPDATE_INCOMPATIBLE  INSTALL_FAILED_SHARED_USER_INCOMPATIBLE
+生成keystore：
+keytool -genkey -alias sky.keystore -keyalg RSA -validity 20000 -keystore sky.keystore  （密钥：123456）
+
+cd C:\Program Files\Java\jdk1.7.0_15\bin 
+copy apk to this directory
+重签名：
+jarsigner -verbose -keystore sky.keystore -signedjar Tempal_packing_sign.apk Tempal_packing.apk sky.keystore
 ```
 
-如上提示表明AndroidManifest.xml中声明了android:sharedUserId="android.uid.system"，但没有相应的签名，应与sharedUserId的应用使用一样的签名
+##### 反编译
 
 ```
-INSTALL_FAILED_USER_RESTRICTED
+java -jar apktool.jar d XXX.apk
 ```
 
-表明用户被限制安装应用
+报错：
+
+```
+java -jar apktool.jar b Factory1 -o Factory_21010511.apk
+I: Using Apktool 2.5.1-e25c0f-SNAPSHOT
+I: Checking whether sources has changed...
+I: Smaling smali folder into classes.dex...
+I: Checking whether resources has changed...
+I: Building resources...
+W: /home/hefeng/software/ApkTool/Factory1/res/layout-v26/abc_screen_toolbar.xml:5: error: No resource identifier found for attribute 'keyboardNavigationCluster' in package 'android'
+W: 
+brut.androlib.AndrolibException: brut.common.BrutException: could not exec (exit code = 1): [/tmp/brut_util_Jar_74022679766604650467241449429402703582.tmp, p, --forced-package-id, 127, --min-sdk-version, 23, --target-sdk-version, 29, --version-code, 7, --version-name, 1.8.0(201028_1432), --no-version-vectors, -F, /tmp/APKTOOL1236562404885088240.tmp, -e, /tmp/APKTOOL8134476515707962018.tmp, -0, arsc, -I, /home/hefeng/.local/share/apktool/framework/1.apk, -S, /home/hefeng/software/ApkTool/Factory1/res, -M, /home/hefeng/software/ApkTool/Factory1/AndroidManifest.xml]
+```
+
+安装framework-res.apk：
+
+```
+./apktool install-framework /home/work/S809_AUR-A0/ctcc/work/out/target/product/ud710_7h10/system/framework/framework-res.apk
+```
+
+重新打包：
+
+```
+java -jar apktool.jar b XXX -o YYY.apk(打包后要命名的名称) -o表示新生成的apk文件放在当前文件夹
+```
+
