@@ -27,29 +27,6 @@ https://adb.clockworkmod.com/
 5. AVD 突然出现了`dev kvm is not found 这个错误`
    `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
 
-ubuntu下无法连接真机，lsusb可以显示出vid, 但是adb devices，提示： ????????????	 no permissions
-
-```
-Bus 001 Device 009: ID 1ebf:5d24
-```
-
-~/.android/新建adb_usb.ini，将01ebf加入，打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
-
-```
-#common sprd adb setting
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1782", ATTRS{idProduct}=="5d24", MODE="0666"
-#just for Coolpad
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1ebf", ATTRS{idProduct}=="5d24", MODE="0666"
-```
-
-```
-adb shell  error: device not found
-adb nodaemon server
-netstat -ano | findstr "5037"
-tasklist | findstr "7860"
-taskkill /f /pid 7860
-```
-
 ##### 使用wireless方式连接ADB
 
 当USB端口与adb无法同时存在时使用
@@ -236,4 +213,50 @@ brut.androlib.AndrolibException: brut.common.BrutException: could not exec (exit
 ```
 java -jar apktool.jar b XXX -o YYY.apk(打包后要命名的名称) -o表示新生成的apk文件放在当前文件夹
 ```
+
+##### 权限异常
+
+ubuntu下无法连接真机，lsusb可以显示出vid, 但是adb devices，提示： ????????????	 no permissions
+
+```
+Bus 001 Device 009: ID 1ebf:5d24
+```
+
+~/.android/新建adb_usb.ini，将01ebf加入，打开`/etc/udev/rules.d/70-persistent-net.rules`加入：  
+
+```
+#common sprd adb setting
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1782", ATTRS{idProduct}=="5d24", MODE="0666"
+#just for Coolpad
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1ebf", ATTRS{idProduct}=="5d24", MODE="0666"
+```
+
+```
+adb shell  error: device not found
+adb nodaemon server
+netstat -ano | findstr "5037"
+tasklist | findstr "7860"
+taskkill /f /pid 7860
+```
+
+##### gradle异常
+
+Could not resolve com.android.tools.build:gradle:3.2.1
+
+1. 修改build.gradle
+
+```
+repositories {
+        /*google()
+        jcenter()
+        maven { url 'https://jitpack.io' }*/
+        
+        maven{ url 'https://maven.aliyun.com/repository/google'}
+        maven{ url 'https://maven.aliyun.com/repository/jcenter' }
+        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public'}
+    }
+```
+
+2. 删除工程根目录下gradle.properties
+3. 同步
 
