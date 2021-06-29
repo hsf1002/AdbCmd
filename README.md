@@ -1,15 +1,20 @@
+
+
+
+
 # adb
+
 ```
 https://adb.clockworkmod.com/
+https://adbshell.com/downloads
 ```
 
 ##### 安装
 
 1. adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll拷贝到：C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)
-
-2. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
-
-3. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
+2. 设置环境变量，添加到系统变量Path中
+3. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
+4. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
 
 安装可能出现的问题：
 
@@ -42,37 +47,44 @@ List of devices attached
 5. adb disconnect 192.168.3.47:5555
 ```
 
-##### 打开一个Activity
+##### am
 ```
-adb shell am start -n 包名/类名
-```
-
-##### 强制关闭一个应用
-```
-adb shell am force-stop package
+打开一个Activity
+adb shell am start -n pck_name/class_name
+adb shell am start pck_name/class_name -e key value
+adb shell am start -a "android.intent.action,VIEW" -d "https://www.google.com"
 ```
 
-##### 保存日志
 ```
-adb logcat -v time > log
-```
-
-##### 清除日志 
-```
-adb logcat -c
+应用启动耗时
+adb shell am start -S -W com.android.settings/.Settings
+另一种方法
+06-29 10:23:55.781 I/ActivityTaskManager( 4559): Displayed com.android.settings/.Settings: +243ms
 ```
 
-##### 查看内核log
+```
+强制关闭一个应用
+adb shell am force-stop pck_name
+```
 
 ```
-dmesg  | cat /proc/kmsg
-```
-
-##### 查看当前Activity所属包名类名
-
-```
+查看当前Activity
 adb shell dumpsys activity top | head -n 10  
 adb shell dumpsys window | grep mCurrentFocus
+adb shell dumpsys activity | grep -i run  // 第一个
+adb shell dumpsys activity top | grep ACTIVITY  // 最后一个
+```
+
+```
+发送广播
+adb shell am broadcast -a "bc_name"
+adb shell am broadcast -a "bc_name" -e key value
+adb shell am broadcast -a android.intent.action.BOOT_COMPILETED
+```
+
+```
+启动服务
+adb shell am startservice "pck_name/service_name"
 ```
 
 ##### dumpsys
@@ -80,7 +92,8 @@ adb shell dumpsys window | grep mCurrentFocus
 ```
 adb shell dumpsys package	 // 输出很庞大，包括Permissions，Features，Activity Resolver Table等
 adb shell dumpsys package packagename   // 获取某个应用信息
-adb shell dumpsys window | grep "ShownFrame" // 查看手机分辨率
+adb shell dumpsys window | grep "ShownFrame" // 查看屏幕分辨率
+adb shell dumpsys window displays |head -n 3 // 查看屏幕宽高
 adb shell dumpsys usagestats  // 每个界面启动时间
 ```
 
@@ -91,7 +104,9 @@ adb shell dumpsys activity providers
 adb shell dumpsys activity services  
 adb shell dumpsys activity activities  
 adb shell dumpsys activity processes  
+```
 
+```
 该应用必须处于活动状态
 adb shell dumpsys meminfo packagename or PID  
 adb shell dumpsys meminfo  
@@ -111,7 +126,7 @@ adb shell dumpsys location
 ##### pm list 
 
 ```
-adb shell pm list packages    // 列出系统所有包名
+adb shell pm list packages    // 列出系统所有包名，后面加上 -f 显示APP的路径
 adb shell pm list features    // 列出目标设备上的所有feature
 adb shell pm list permissions // 列出目标平台上的所有权限
 ```
@@ -142,6 +157,28 @@ TP-滑动：
 adb shell input swipe 100 200 200 400
 ```
 
+##### 屏幕截图
+
+```
+adb shell screencap /sdcard/screen.png
+```
+
+##### 录制视频
+
+```
+adb shell screenrecord /sdcard/demo.mp4
+```
+
+##### 日志
+
+```
+adb logcat -v time > log  // 保存
+adb logcat -c     // 清除日志
+
+内核log
+adb shell dmesg  | cat /proc/kmsg
+```
+
 ##### 系统属性
 
 ```
@@ -149,12 +186,6 @@ adb shell getprop ro.product.name
 adb shell setprop ro.product.name  coolpad
 
 adb shell watchprops   // 监控系统属性
-```
-
-##### 屏幕截图
-
-```
-screencap -p data/screen.png
 ```
 
 ##### 系统签名
