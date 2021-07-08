@@ -9,29 +9,6 @@ https://adb.clockworkmod.com/
 https://adbshell.com/downloads
 ```
 
-##### 安装
-
-1. adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll拷贝到：C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)
-2. 设置环境变量，添加到系统变量Path中
-3. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
-4. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
-
-安装可能出现的问题：
-
-1. `C:\Users\feng_he\.android`下新建adb_usb.ini，并将设备管理器中 Android Device、端口、人体学输入设备的VID添加，重新插拔USB线，输入adb kill-server再输入adb shell  
-
-2. 如果提示`could not read ok from ADB Server, error = 109`  
-   把环境变量 adb 添加到系统变量里面  
-
-3. 如果提示`adb server version (31) doesn’t match this client (36); killing…`  
-   可能`Windows\System32\adb.exe和Users\feng_he\AppData\Local\Android\sdk\platform-tools\adb.exe`太新了，这两处替换为旧的文件
-
-4. 如果提示`Error:CreateProcess error=216, 该版本的 %1 与您运行的 Windows 版本不兼容`
-   开发项目的引用Java jdk，与本机安装的java jdk版本不一致，打开项目后，在project structure里面更改一下本机的真实的Java jdk路径  
-
-5. AVD 突然出现了`dev kvm is not found 这个错误`
-   `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
-
 ##### 使用wireless方式连接ADB
 
 当USB端口与adb无法同时存在时使用
@@ -179,13 +156,21 @@ adb logcat -c     // 清除日志
 adb shell dmesg  | cat /proc/kmsg
 ```
 
-##### 系统属性
+##### 属性
 
 ```
 adb shell getprop ro.product.name
 adb shell setprop ro.product.name  coolpad
 
 adb shell watchprops   // 监控系统属性
+
+global：所有的偏好设置对系统的所有用户公开，第三方APP有读没有写的权限
+secure：安全性的用户偏好系统设置，第三方APP有读没有写的权限
+system：包含各种各样的用户偏好系统设置
+
+adb shell settings get system "finger_home"
+adb shell settings put system "finger_home" 1
+adb shell settings list global
 ```
 
 ##### 系统签名
@@ -270,24 +255,25 @@ tasklist | findstr "7860"
 taskkill /f /pid 7860
 ```
 
-##### gradle异常
+##### 安装
 
-Could not resolve com.android.tools.build:gradle:3.2.1
+1. adb.exe,AdbWinApi.dll,AdbWinUsbApi.dll拷贝到：C:\Windows\System32(64位应该拷贝到C:Windows\SysWOW64)
+2. 设置环境变量，添加到系统变量Path中
+3. adb_usb.ini、adbkey、adbkey.pub拷贝到：C:\Users\用户名\.android，如：C:\Users\yoyo下不存在.android，需要手动新建.android文件夹
+4. 快捷键Win+R输入cmd进入命令行，输入adb version，如显示“Android Debug Bridge version 1.0.32”表示adb安装成功
 
-1. 修改build.gradle
+安装可能出现的问题：
 
-```
-repositories {
-        /*google()
-        jcenter()
-        maven { url 'https://jitpack.io' }*/
-        
-        maven{ url 'https://maven.aliyun.com/repository/google'}
-        maven{ url 'https://maven.aliyun.com/repository/jcenter' }
-        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public'}
-    }
-```
+1. `C:\Users\feng_he\.android`下新建adb_usb.ini，并将设备管理器中 Android Device、端口、人体学输入设备的VID添加，重新插拔USB线，输入adb kill-server再输入adb shell  
 
-2. 删除工程根目录下gradle.properties
-3. 同步
+2. 如果提示`could not read ok from ADB Server, error = 109`  
+    把环境变量 adb 添加到系统变量里面  
 
+3. 如果提示`adb server version (31) doesn’t match this client (36); killing…`  
+    可能`Windows\System32\adb.exe和Users\feng_he\AppData\Local\Android\sdk\platform-tools\adb.exe`太新了，这两处替换为旧的文件
+
+4. 如果提示`Error:CreateProcess error=216, 该版本的 %1 与您运行的 Windows 版本不兼容`
+    开发项目的引用Java jdk，与本机安装的java jdk版本不一致，打开项目后，在project structure里面更改一下本机的真实的Java jdk路径  
+
+5. AVD 突然出现了`dev kvm is not found 这个错误`
+    `C:\Users\Administrator\AppData\Local\Android\sdk\extras\intel\Hardware_Accelerated_Execution_Manager`重新安装  
