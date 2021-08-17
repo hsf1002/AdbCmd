@@ -45,14 +45,6 @@ adb shell am force-stop pck_name
 ```
 
 ```
-查看当前Activity
-adb shell dumpsys activity top | head -n 10  
-adb shell dumpsys window | grep mCurrentFocus
-adb shell dumpsys activity | grep -i run  // 第一个
-adb shell dumpsys activity top | grep ACTIVITY  // 最后一个
-```
-
-```
 发送广播
 adb shell am broadcast -a "bc_name"
 adb shell am broadcast -a "bc_name" -e key value
@@ -65,6 +57,14 @@ adb shell am startservice "pck_name/service_name"
 ```
 
 ##### dumpsys
+
+```
+查看当前Activity
+adb shell dumpsys activity top | head -n 10  
+adb shell dumpsys window | grep mCurrentFocus
+adb shell dumpsys activity | grep -i run  // 第一个
+adb shell dumpsys activity top | grep ACTIVITY  // 最后一个
+```
 
 ```
 adb shell dumpsys package	 // 输出很庞大，包括Permissions，Features，Activity Resolver Table等
