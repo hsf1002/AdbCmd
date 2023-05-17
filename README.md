@@ -60,7 +60,8 @@ adb shell am startservice "pck_name/service_name"
 
 ```
 查看当前Activity
-adb shell dumpsys window | grep mCurrentFocus
+adb shell dumpsys window   | grep mCurrentFocus
+adb shell dumpsys activity | grep -i foc
 adb shell dumpsys activity | grep "mResume"
 adb shell dumpsys activity top | grep ACTIVITY | tail -n 1
 ```
