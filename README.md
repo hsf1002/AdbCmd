@@ -60,10 +60,14 @@ adb shell am startservice "pck_name/service_name"
 
 ```
 查看当前Activity
-adb shell dumpsys activity top | head -n 10  
 adb shell dumpsys window | grep mCurrentFocus
-adb shell dumpsys activity | grep -i run  // 第一个
-adb shell dumpsys activity top | grep ACTIVITY  // 最后一个
+adb shell dumpsys activity | grep "mResume"
+adb shell dumpsys activity top | grep ACTIVITY | tail -n 1
+```
+
+```
+查看当前Fragment
+adb shell dumpsys activity top | grep '#[0-9]: ' | tail -n 1
 ```
 
 ```
@@ -106,6 +110,26 @@ adb shell dumpsys location
 adb shell pm list packages    // 列出系统所有包名，后面加上 -f 显示APP的路径
 adb shell pm list features    // 列出目标设备上的所有feature
 adb shell pm list permissions // 列出目标平台上的所有权限
+
+安装路径
+adb shell pm path "com.android.settings"
+adb shell pm list packages -f | grep "com.android.settings"
+```
+
+##### OEM unlock
+```
+mount -o remount,rw /
+
+1. 在开发者中打开OEM unlocking和usb debugging
+2. adb reboot bootloader
+3. fastboot flashing unlock
+4. 根据提示按键解锁
+5. fastboot reboot
+6. adb root
+7. adb disable-verity
+8. adb reboot
+9. adb root
+10. adb remount
 ```
 
 ##### input
