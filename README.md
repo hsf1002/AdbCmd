@@ -117,6 +117,17 @@ adb shell pm path "com.android.settings"
 adb shell pm list packages -f | grep "com.android.settings"
 ```
 
+##### Settings
+```
+adb shell settings get system screen_brightness   30   // 获取当前亮度值 
+adb shell settings put system screen_brightness   150  // 更改亮度值（亮度值在0—255之间）
+adb shell settings get system screen_off_timeout  15000   // 获取屏幕休眠时间
+
+
+adb shell settings get Global stay_on_while_plugged_in     // 充电时是否亮屏
+adb shell settings put Global stay_on_while_plugged_in  0  // 充电时不要亮屏
+```
+
 ##### OEM unlock
 ```
 mount -o remount,rw /
